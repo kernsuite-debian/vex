@@ -1,0 +1,95 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: vex
+Source: <url://example.com>
+#
+# Please double check copyright with the licensecheck(1) command.
+
+Files:     Makefile
+           README
+           print_vex.c
+           print_vex.c-vex2005-nut
+           vex++.h
+           vex-9.8.2/Makefile
+           vex-9.8.2/print_vex.c
+           vex-9.8.2/test_parser/Makefile
+           vex-9.8.2/test_parser/main.c
+           vex-9.8.2/test_parser/t.f
+           vex-9.8.2/test_parser/wh
+           vex-9.8.2/test_parser/wh1
+           vex-9.8.2/vex.h
+           vex-9.8.2/vex.y
+           vex-9.8.2/vex.yy.l
+           vex-9.8.2/vex_get.c
+           vex-9.8.2/vex_put.c
+           vex-9.8.2/vex_util.c
+           vex-9.8.2/vexf.c
+           vex-9.8.2/vexf.f.new
+           vex-9.8.2/vexf_put.c
+           vex.h
+           vex.h-vex2005-nut
+           vex.y
+           vex.y-09Apr2015-before-clockunit
+           vex.y-vex2005-nut
+           vex.yy.l
+           vex.yy.l-vex2005-nut
+           vex_get.c
+           vex_get.c-vex2005-nut
+           vex_util.c
+           vex_util.c-vex2005-nut
+Copyright: __NO_COPYRIGHT_NOR_LICENSE__
+License:   __NO_COPYRIGHT_NOR_LICENSE__
+
+Files:     y.tab.h
+Copyright: 1984-2006 Free Software Foundation, Inc.
+License:   GPL-3.0+ with unknown exception *** check multiple exceptions ***
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ .
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ .
+ As a special exception, you may create a larger work that contains
+ part or all of the Bison parser skeleton and distribute that work
+ under terms of your choice, so long as that work isn't itself a
+ parser generator using the skeleton or a modified version thereof
+ as a parser skeleton.  Alternatively, if you modify or redistribute
+ the parser skeleton itself, you may (at your option) remove this
+ special exception, which will cause the skeleton and the resulting
+ Bison output files to be licensed under the GNU General Public
+ License without this special exception.
+ .
+ This special exception was added by the Free Software Foundation in
+ version 2.2 of Bison.
+ .
+ Tokens.
+ .
+ On Debian systems, the complete text of the GNU General Public License
+ Version 3 can be found in `/usr/share/common-licenses/GPL-3'.
+
+Files: debian/*
+Copyright: © 2019 Athanaseus Ramaila <aramaila@ska.ac.za>
+License: MIT
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ .
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ IN THE SOFTWARE.

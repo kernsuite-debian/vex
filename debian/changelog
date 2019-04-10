@@ -1,0 +1,5 @@
+vex (9.8.2-1kern1) bionic; urgency=low
+
+  * Initial release.
+
+ -- KERN packaging <packaging@kernsuite.info>  Wed, 10 Apr 2019 12:49:52 +0000
