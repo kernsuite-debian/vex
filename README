@@ -1,0 +1,478 @@
+Short:
+
+20090921 Build private VEX suite /ccs/opt/myvex from vex2005-nut
+20090922 vex.h since Aug 1997 (/ccs++/Friso/vexdoc/vexx, 1.5.44)
+20090923 Look further into code history of vex.y; suggest BITSTREAM additions
+20090929 Add BITSTREAM stuff in myvex
+20090930 Add BITSTREAM stuff in vexplus (/ccs++/tst20090629) and test in vexcjd.C
+20090930 Make new test release /ccs++/tst20090930
+20091001 Include enum S_M, do test runs and tell eBob
+20091005 Add field to BITSTREAMS block
+
+Full:
+
+==============================================================
+===Mon Sep 21 13:21:32 CEST 2009
+
+# Create my private VEX suite
+
+ssh -X jive_cc@ccsops
+juw32: cd /ccs/opt
+juw32: cp -pr vex2005-nut myvex
+juw32: cd myvex
+juw32: emacs README #this file
+
+# Inventory
+
+juw32: grep VEXROOT /ccs/rel20090907/system_make/locations.juw31.mak
+export VEXROOT := /ccs/opt/vex2005-nut
+export VEXINCD  := $(VEXROOT)
+export VEXLIBD  := $(VEXROOT)
+
+051206: Friso as jive_cc copied vex2005 (based on fs-9.7.7) to
+        vex2005nut and added the nutation bits from vex-9.8.2:
+Differences between vex2005 and vex2005nut files:
+         print_vex.c  none
+         vex.h        new/mod'd create_ fu's for nut and horizon
+         vex.y        new nut tokens, types and eop_lowl components
+         vex.yy.l     new nut <LINE>s
+         vex_get.c    none
+         vex_util.c   new nut fields
+
+Compare the sources with:
+ccsdev:/ccs++/Friso/vexdoc/vexx             (Jan 1998)
+ juw27:/aips++4/verkout/JCCSUtil/vex-9.4.6  (Jan 2002)
+ juw27:/aips++4/verkout/JCCSUtil/vex2005    (Jun 2005)
+ccsops:/ccs/opt/myvex/vex-9.8.2             (Nov 2005)
+ juw27:/aips++4/verkout/JCCSUtil/vex2005nut (Nov 2006)
+
+# Build from scratch
+
+Sources:
+
+      349 Jun 21  2006 Makefile   -> libvex.a
+    11041 Sep 21 13:53 README     this file
+     6941 Dec  7  2005 print_vex.c -> libvex.a
+      147 Dec  7  2005 vex++.h    C++ wrapper around VEX library
+    25636 Dec  7  2005 vex.h      declarations/prototypes for VEX library
+    51757 Dec  7  2005 vex.y      -> libvex.a (bison grammar file)
+    16530 Dec  7  2005 vex.yy.l   -> libvex.a
+    23753 Jun 21  2006 vex_get.c  -> libvex.a
+    49664 Dec  7  2005 vex_util.c -> libvex.a
+
+juw32: setenv PATH ${PATH}:/usr/ccs/bin   #to find "ar"
+juw32: gmake libvex.a
+
+   191920 Sep 21 14:16 libvex.a    <- ar -qc libvex.a *.o
+     8008 Sep 21 14:16 print_vex.o <- gcc -fPIC -c print_vex.c
+                       vex.c       <- mv -f y.tab.c vex.c
+    92692 Sep 21 14:16 vex.o       <- gcc -fPIC -c vex.c
+                       vex.yy.c    <- flex -t vex.yy.l
+    41700 Sep 21 14:16 vex.yy.o    <- gcc -fPIC -c vex.yy.c
+    15284 Sep 21 14:16 vex_get.o   <- gcc -fPIC -c vex_get.c
+    31456 Sep 21 14:16 vex_util.o  <- gcc -fPIC -c vex_util.c
+                       y.tab.c     <- bison -d -y vex.y
+    10674 Sep 21 14:16 y.tab.h     <- bison -d -y vex.y
+
+# That is exactly the result in vex2005-nut; so OKAY
+
+==============================================================
+===Tue Sep 22 08:47:26 CEST 2009
+
+juw27:/<1>verkout/JCCSUtil> ll vex-9.4.6/
+     6117 Jan 11  2002 print_vex.c
+      147 Jan 11  2002 vex++.h
+    11673 Jan 11  2002 vex.h
+    48542 Jan 11  2002 vex.y
+    16107 Jan 11  2002 vex.yy.l
+    18089 Jan 11  2002 vex_get.c
+    47570 Jan 11  2002 vex_util.c
+
+
+vex.h history:
+   main steps:
+    11430 Aug  1  1997 /ccs++/Friso/vexdoc/vexx/vex.h
+          + scanid stuff and local mods for gnu C++
+    11673 Jan 11  2002 /aips++4/verkout/JCCSUtil/vex-9.4.6/vex.h
+          + data_transfer, literal fu's, create fu's
+    25357 May 30  2005 /aips++4/verkout/JCCSUtil/vex2005/vex.h
+          + polar nutation, modified horizon_map
+    25636 Dec  7  2005 /ccs/opt/vex2005-nut/vex.h
+
+   details:
+/aips++4   on juw27
+/aps3      on jop63 and juw27 (dus0)
+/auto/jive on jop63 and juw27 (dus0)
+
+->  11430 Aug  1  1997 /ccs++/Friso/vexdoc/vexx/vex.h
+    11430 Aug  1  1997 /auto/jive/avruch/work/scheds/drudg/build/vex/vex.h
+          + yyerror()                            ##removed later on
+          - name of argument in print_external()
+->  11454 Jan 12  1998 /ccs++/Friso/vexdoc/vex++/vex.h
+          - yyerror()                            ##removed here
+          s "block" -> "vex_block"
+          + arg **scanid to get_scan_station_next()
+          - get_scan_station()
+          + get_scan_next(char **scanid);
+          + get_scan(char **scanid, struct vex *vex_in);
+          + get_station_scan_next();
+          + get_station_scan(Llist *lowls_in);
+->  11673 Jan 11  2002 /aips++4/verkout/JCCSUtil/vex-9.4.6/vex.h
+    11673 May 30  2002 /auto/jive/kettenis/src/vex2001-gnu2.95.3/vex.h
+    11673 Sep 20  2005 /aps3/ALBUS/anderson/C++/vex_to_sky2/vex/vex.h
+          + struct data_transfer {...} and its functions
+          + get_*literal* functions
+          + many create_* functions
+          + extern FILE *fp;
+          + extern char *filename;
+->  25357 May 30  2005 /aips++4/verkout/JCCSUtil/vex2005/vex.h
+    25357 Jul 13  2005 /auto/jive/kettenis/src/vex2005/vex.h
+    25357 Sep 20  2005 /aps3/ALBUS/anderson/C++/vex_to_sky2/vex2005/vex.h
+    25357 May 31  2007 /aps3/ALBUS/include/vex.h
+          s "vex_block" -> "block"                     ##restored later on
+          + name of argument in print_external()       ##restored later on
+          - "extern" on *fp and *filename declarations ##restored later on
+          + create_* functions for polar nutation
+          - arg lists of create_horizon_map_az() and create_horizon_map_el()
+          + create_horizon_map(char *str, char *str2);
+->  25576 Nov 22  2005 /auto/jive/olnon/jive/vex-9.8.2/fs-9.8.2/vex/vex.h
+    25576 Nov 22  2005 /jop63_1/olnon/zzzBACKUP/homedir/jive/vex-9.8.2/fs-9.8.2/vex/vex.h
+    25576 Nov 22  2005 /ccs/opt/myvex/vex-9.8.2/vex.h
+          "s block" -> "vex_block"                      ##restored here
+          - name of argument in print_external()        ##restored here
+          + "extern" on *fp and *filename declarations  ##restored here
+->  25636 Dec  7  2005 /ccs/opt/vex2005-nut/vex.h
+    25636 Dec  7  2005 /ccs/opt/myvex/vex.h
+    25636 Dec  9  2005 /aips++4/verkout/JCCSUtil/vex2005nut/vex.h
+    25636 Nov  9  2006 /auto/jive/eldering/vexfiles/editor/vex2005-nut/vex.h
+    25636 Jan  5  2007 /ccs++/bob/vex_editor/vex-old/vex.h
+    25636 Jan  5  2007 /ccs++/bob/vex_editor/vex2005-nut/vex.h
+    25636 Jan 24  2007 /auto/jive/eldering/vex_editor/vex2005-nut/vex.h
+    25636 Jun  5  2007 /auto/jive/eldering/softc/sfxc/utils/vex_parser/vex.h
+    25636 Jul 27  2007 /auto/jive/marchal/demosc07/svn/trunk/sfxc/lib/vex_parser/vex.h
+    25636 Jul 27  2007 /auto/jive/marchal/demosc07/svn/tags/rel-0-0-3-multicore-singlechannel/utils/vex_parser/vex.h
+
+==============================================================
+===Wed Sep 23 09:26:07 CEST 2009
+
+juw31: gmake -n
+flex  -t vex.yy.l > vex.yy.c
+gcc -fPIC   -c -o vex.yy.o vex.yy.c
+gcc -fPIC   -c -o vex_util.o vex_util.c
+gcc -fPIC   -c -o print_vex.o print_vex.c
+gcc -fPIC   -c -o vex_get.o vex_get.c
+ar -qc libvex.a vex.o vex.yy.o vex_util.o print_vex.o vex_get.o
+ranlib libvex.a
+
+
+Differences between vex2005 and vex2005nut files:
+         print_vex.c  none
+         vex.h        new/mod'd create_ fu's for nut and horizon
+         vex.y        new nut tokens, types and eop_lowl components
+         vex.yy.l     new nut <LINE>s
+         vex_get.c    none
+         vex_util.c   new nut fields
+
+
+juw31: cd /ccs/opt/myvex
+juw31: tkdiff {/ccs++/Friso/vexdoc/vexx/,}vex.y:
+
+%union
+{
+...
+23 struct block           *blptr;
+23+struct vex_block       *blptr;
+...
+32+struct data_transfer   *dtptr;
+...
+}
+
+-------------------------
+
+##for $SCHED: add token T_DATA_TRANSFER and some types
+-%token <ival>  T_START T_SOURCE T_MODE T_STATION
++%token <ival>  T_START T_SOURCE T_MODE T_STATION T_DATA_TRANSFER
+
+182+%type  <dtptr>  data_transfer
+183+%type  <sval>   scan_id method destination options
+184+%type  <dvptr>  unit_value2
+
+##sched_lowl:  start    -   add field
+491+            | data_transfer         {$$=make_lowl(T_DATA_TRANSFER,$1);}
+
+510+data_transfer: T_DATA_TRANSFER '=' scan_id ':' /* name */
+511+                method ':'                     /* method disk2file or in2net */
+512+                destination ':'                    /* filename or blank */
+513+                unit_value2 ':'                /* data start */
+514+                unit_value2 ':'                /* data stop */
+515+                options ';'                    /* future use, empty now */
+516+                {$$=make_data_transfer($3,$5,$7,$9,$11,$13);}
+517+                | T_DATA_TRANSFER '=' scan_id ':' /* name */
+518+                method ':'                     /* method disk2file or in2net */
+519+                destination ':'                /* filename or blank */
+520+                unit_value2 ':'                /* data start */
+521+                unit_value2 ';'                /* data stop */
+522+                {$$=make_data_transfer($3,$5,$7,$9,$11,NULL);}
+523+;
+
+537+scan_id:    /* empty */                     {$$=NULL;}
+538+            | T_NAME                        {$$=$1;}
+539+;
+540+method:     /* empty */                     {$$=NULL;}
+541+            | T_NAME                        {$$=$1;}
+542+;
+543+destination: /* empty */                    {$$=NULL;}
+544+            | T_NAME                        {$$=$1;}
+545+;
+546+unit_value2: /* empty */                    {$$=make_dvalue(NULL,NULL);}
+547+            | T_NAME T_NAME                 {$$=make_dvalue($1,$2);}
+548+;
+549+options:    /* empty */                     {$$=NULL;}
+550+            | T_NAME                        {$$=$1;}
+551+;
+
+-------------------------
+
+##for $EOP: add tokens and types
+%token <ival>   T_NUT_REF_EPOCH T_NUM_NUT_POINTS T_NUT_INTERVAL T_DELTA_PSI
+%token <ival>   T_DELTA_EPS T_NUT_MODEL
+
+220+%type  <sval>   nut_ref_epoch
+221+%type  <dvptr>  num_nut_points nut_interval
+222+%type  <llptr>  delta_psi delta_eps
+223+%type  <sval>   nut_model
+
+##eop_lowl: tai_utc    -   add polar nutation fields
+754+            | nut_ref_epoch         {$$=make_lowl(T_NUT_REF_EPOCH,$1);}
+755+            | num_nut_points        {$$=make_lowl(T_NUM_NUT_POINTS,$1);}
+756+            | nut_interval          {$$=make_lowl(T_NUT_INTERVAL,$1);}
+757+            | delta_psi             {$$=make_lowl(T_DELTA_PSI,$1);}
+758+            | delta_eps             {$$=make_lowl(T_DELTA_EPS,$1);}
+759+            | nut_model             {$$=make_lowl(T_NUT_MODEL,$1);}
+
+783+nut_ref_epoch:	T_NUT_REF_EPOCH '=' T_NAME ';'	{$$=$3;}
+784+;
+785+num_nut_points:	T_NUM_NUT_POINTS '=' value ';'	{$$=$3;}
+786+;
+787+nut_interval:	T_NUT_INTERVAL '=' unit_value ';'	{$$=$3;}
+788+;
+789+delta_psi:      T_DELTA_PSI '=' unit_list ';'	{$$=$3;}
+790+		| T_DELTA_PSI '=' ';'		{$$=NULL;}
+791+;
+792+delta_eps:      T_DELTA_EPS '=' unit_list ';'	{$$=$3;}
+793+		| T_DELTA_EPS '=' ';'		{$$=NULL;}
+794+;
+795+nut_model:	T_NUT_MODEL '=' T_NAME ';'	{$$=$3;}
+796+;
+
+--------------------------------
+
+and lots of semicolons added
+
+----------------------------------
+
+What to add for a new block $BITSTREAMS?
+
+73  add struct stream_def *fsptr;
+
+144  add token <ival> B_BITSTREAMS  
+
+330  add bittreams_block types:
+  %type  <llptr>  bitstreams_block bitstreams_defs bitstreams_lowls 
+  %type  <dfptr>  bitstreams_def
+  %type  <lwptr>  bitstreams_lowl bitstreams_defx
+  %type  <fsptr>  stream_def
+  %type  <llptr>  bit_stream_list
+
+386 add to rule for block:
+  | bitstreams_block    {$$=make_block(B_BITSTREAMS,$1);}
+
+452 add to rule for primitive:
+  | B_BITSTREAMS	{$$=B_BITSTREAMS;} 
+
+1509 add $BITSTREAMS section:
+
+/* $BITSTREAMS */
+
+bitstreams_block: B_BITSTREAMS ';' bitstreams_defs {$$=$3;}
+                | B_BITSTREAMS ';'                 {$$=NULL;}
+;
+bitstreams_defs:  bitstreams_defs bitstreams_defx {$$=add_list($1,$2);}
+                | bitstreams_defx                 {$$=add_list(NULL,$1);}
+;
+bitstreams_defx:  bitstreams_def        {$$=make_lowl(T_DEF,$1);}
+                | T_COMMENT             {$$=make_lowl(T_COMMENT,$1);}
+                | T_COMMENT_TRAILING    {$$=make_lowl(T_COMMENT_TRAILING,$1);}
+;
+bitstreams_def:   T_DEF T_NAME ';' bitstreams_lowls T_ENDDEF ';'
+                                        {$$=make_def($2,$4);}
+                | T_DEF T_NAME ';' T_ENDDEF ';'         
+                                        {$$=make_def($2,NULL);}
+;
+bitstreams_lowls: bitstreams_lowls bitstreams_lowl        {$$=add_list($1,$2);}
+                | bitstreams_lowl                         {$$=add_list(NULL,$1);}
+;
+bitstreams_lowl:  stream_def         {$$=make_lowl(T_STREAM_DEF,$1);}
+                | external_ref       {$$=make_lowl(T_REF,$1);}
+                | T_COMMENT          {$$=make_lowl(T_COMMENT,$1);}
+                | T_COMMENT_TRAILING {$$=make_lowl(T_COMMENT_TRAILING,$1);}
+;
+stream_def:       T_STREAM_DEF '=' bit_stream_list ';'
+                  value ':' value_list ';'
+                  {$$=make_stream_def($3,$5,$7);}
+;
+bit_stream_list:  bit_stream_list ':' T_LINK ':' T_NAME 
+                                        {$$=add_list(add_list($1,$3),$5);}
+                | T_LINK ':' T_NAME     
+                                        {$$=add_list(add_list(NULL,$1),$3);}
+;
+
+==============================================================
+===Tue Sep 29 11:50:07 CEST 2009
+
+# First retry build from scratch (on ccsops as jive_cc):
+
+juw31: cd /ccs/opt/myvex
+juw31: setenv PATH ${PATH}:/usr/ccs/bin
+juw31: gmake libvex.a
+
+# Add BITSTREAM block and rebuild
+
+juw31: emacs vex.h                            DONE
+  + make_stream_def(...)             #impl in vex_util.c
+  + create_stream_def(...)           #impl in ??
+  + create_stream_def_list(...)      #impl in ??
+juw31: emacs vex.y                            DONE
+  + %token <ival> T_STREAM_DEF
+  + %token <ival> B_BITSTREAMS
+  + %type  <llptr>  bitstreams_block bitstreams_defs bitstreams_lowls 
+  + %type  <dfptr>  bitstreams_def
+  + %type  <lwptr>  bitstreams_lowl bitstreams_defx
+  + %type  <stptr>  stream_def
+  + | bitstreams_block {$$=make_block(B_BITSTREAMS,$1);} /* in block: */
+  + | B_BITSTREAMS     {$$=B_BITSTREAMS;}            /* in primitive: */
+  + /* $BITSTREAMS */                            /* whole new section */
+juw31: emacs vex_util.c                       DONE 
+  + static int get_stream_def_field(...) declaration
+  + get_stream_def_field(...) implementation
+  + {"BITSTREAMS", B_BITSTREAMS},     /* in static struct {} blocks[] */
+  + {"stream_def", T_STREAM_DEF},     /* in static  struct {} lowls[] */
+  + struct stream_def *make_stream_def(...) {...}
+  + case T_STREAM_DEF:                     /* in vex_field(...) {...} */
+juw31: emacs vex.yy.l                         DONE
+  + <LINE,REF>"$"BITSTREAMS {BEGIN(INITIAL);return B_BITSTREAMS;}
+  + <LINE>stream_def        {BEGIN(INITIAL);return T_STREAM_DEF;}
+
+juw31: gmake libvex.a
+
+# Test 
+       #run 'current' prep_job -l3 (with vex2005-nut) on current vexfile
+(olnon)Jop63> ssh -X jops@ccsdev
+juw32: cd /ccs++/expr/EB041A/
+juw32: /ccs++/tst20090629/bin/SunOS_5_i86pc/prep_job -l3 -t JbWbEfOnMcTrNtUrJv -v eb041a.trg1.vix -p 156d15h20m00s -q 156d17h32m20s -n 128 -i 1 -x 0 -r 1 -g 1
+                            Persistent CJD written: /jccs/data/EB041A/909300959/EB041A_909300959.vex
+       #build and run new prep_job -l3 (with myvex) on current vexfile
+juw31: ssh -X jive_cc@ccsdev
+juw32: emacs /ccs++/tst20090629/system_make/locations.juw31.mak #vex2005-nut->myvex
+juw32: setenv CCC_ROOT /ccs++/tst20090629      
+juw32: cd $CCC_ROOT/source/prep_job
+juw32: gmake freshstart all install
+juw32: exit
+juw32: /ccs++/tst20090629/bin/SunOS_5_i86pc/prep_job -l3 -t JbWbEfOnMcTrNtUrJv -v eb041a.trg1.vix -p 156d15h20m00s -q 156d17h32m20s -n 128 -i 1 -x 0 -r 1 -g 1
+                            Persistent CJD written: /jccs/data/EB041A/909291657/EB041A_909291657.vex #identical
+       #run new prep_job -l3 on vexfile with $BITSTREAMS
+juw32: cp -p eb041a.trg1.vix eb041a.fmotest.vix
+juw32: emacs eb041a.fmotest.vix&    #add in $BITSTREAMS
+juw32: /ccs++/tst20090629/bin/SunOS_5_i86pc/prep_job -l3 -t JbWbEfOnMcTrNtUrJv -v eb041a.fmotest.vix -p 156d15h20m00s -q 156d17h32m20s -n 128 -i 1 -x 0 -r 1 -g 1
+                            Persistent CJD written: /jccs/data/EB041A/909301029/EB041A_909301029.vex #identical again (apart from call line)
+
+==============================================================
+===Wed Sep 30 09:49:25 CEST 2009
+
+# How to get info out?
+
+juw32: ssh -X jive_cc@ccsdev
+juw32: setenv CCC_ROOT /ccs++/tst20090629
+juw32: cd $CCC_ROOT/source/prep_job
+juw32: emacs vexplus.C ../../include/prep_job/vexplus.h
+   # New function - tracks equivalent - returns
+   #   N_BitsPerDef(stat, mode)     - TrackLines(..)  - nr of stream_def lines
+   #   N_BitsPerChannel(stat, mode) - N_Bits(..)  - nr of bitstreams per channel
+   #   ChannelId(stat, mode, nr)    - Resolve_track_freq(..)  - channel id
+   #   BitType(stat, mode, nr)      - TrackSignMag(..)        - bitstream type
+   #   BitstreamNr(stat, mode, nr)  - TrackNr(stat, mode, nr) - bitstream nr
+juw32: gmake freshstart all install
+juw32: emacs vexcjd.C
+   # Added all the new calls with label "TEST-20090930: "
+juw32: gmake freshstart all install
+juw32: ssh -X jops@ccsdev
+juw32: cd /ccs++/expr/EB041A/
+juw32: /ccs++/tst20090629/bin/SunOS_5_i86pc/prep_job -l3 -t JbWbEfOnMcTrNtUrJv -v eb041a.fmotest.vix -p 156d15h20m00s -q 156d17h32m20s -n 128 -i 1 -x 0 -r 1 -g 1 > & prep_job.out-20090930
+   # Indeed gives us what we wanted
+
+# Make a fresh test release - with myvex i.o. vex2005-nut and
+# the $BITSTREAM stuff added in vexplus.{h,C}
+
+(olnon)Jop63> ssh -X jive_cc@ccsdev
+juw32: cd /ccs++/bin
+juw32: make_test_release
+juw32: setenv CCC_ROOT /ccs++/tst20090930
+juw32: emacs $CCC_ROOT/system_make/locations.juw31.mak
+juw32: cd $CCC_ROOT/make
+juw32: gmake all install >& gmake-all-install.out-$datetag
+juw32: cp -p /ccs++/tst20090629/include/prep_job/vexplus.h $CCC_ROOT/include/prep_job
+juw32: cp -p /ccs++/tst20090629/source/prep_job/vexplus.C $CCC_ROOT/source/prep_job
+juw32: gmake freshstart all install
+
+# e-Bob wants in vexcjd a function called with signature: 
+#
+# void Scan::add_bitstream (S_M sm, int bs, std::string chan_id)
+
+# I put a cout-stub in vexcjd.C calling the necessary $BITSTREAM
+# access functions, and tested it on the same vexfile as before.
+
+juw32: ssh -X jops@ccsdev
+juw32: /ccs++/tst20090930/bin/SunOS_5_i86pc/prep_job -l3 -t JbWbEfOnMcTrNtUrJv -v /ccs++/expr/EB041A/eb041a.fmotest.vix -p 156d11h24m10s -q 156d11h34m40s -n 128 -i 1 -x 0 -r 1 -g 1 |less
+
+==============================================================
+===Thu Oct  1 09:05:26 CEST 2009
+
+# Changed from std::string to S_M enum for bit type
+
+       #include <job_descr/channel_track_link.h>
+juw32: emacs $CCC_ROOT/include/prep_job/vexcjd.h
+juw32: emacs $CCC_ROOT/source/prep_job/vexcjd.C
+
+==============================================================
+===Fri Oct  2 09:12:17 CEST 2009
+
+# Bob implemented void Scan::add_bitstream (S_M sm, int bs, std::string chan_id).
+# I uncommented its call in vexcjd.C and tested again.
+
+==============================================================
+===Mon Oct  5 11:29:02 CEST 2009
+
+# Modify myvex; in BITSTREAM block's stream_def add pin nr
+
+juw31: emacs vex.h                            DONE
+  + 2nd value in "stream_def:" and in 3rd arg in make_stream_def()
+juw31: emacs vex.y                            DONE
+  + pin field in stream_def and pin arg in make_stream_def()
+  + 4th arg in create_stream_def()
+juw31: emacs vex_util.c                       DONE
+  + pin arg in make_stream_def()
+  + pin field in get_stream_def_field(...)
+juw31: cd /ccs/opt/myvex
+juw31: setenv PATH ${PATH}:/usr/ccs/bin
+juw31: gmake libvex.a
+
+# Adapt vexplus and vexcjd.C and test again
+
+juw32: ssh -X jive_cc@ccsdev
+juw32: setenv CCC_ROOT /ccs++/tst20090930
+juw32: cd $CCC_ROOT/source/prep_job
+juw32: emacs vexplus.C ../../include/prep_job/vexplus.h &
+juw32: emacs vexcjd.C &
+juw32: gmake freshstart all install
+juw32: ssh -X jops@ccsdev
+juw32: /ccs++/tst20090930/bin/SunOS_5_i86pc/prep_job -l3 -t JbWbEfOnMcTrNtUrJv -v /ccs++/expr/EB041A/eb041a.fmotest.vix -p 156d11h24m10s -q 156d11h34m40s -n 128 -i 1 -x 0 -r 1 -g 1 |less
